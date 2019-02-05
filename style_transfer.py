@@ -220,8 +220,8 @@ def compute_grads(cfg):
     
     return tape.gradient(total_loss,cfg['init_img']), all_loss
     
-def perform_style_transfer(content_img,style_img,num_iterations = 1000,content_weight = 0,
-                           style_weight=100):
+def perform_style_transfer(content_img,style_img,num_iterations = 1000,content_weight = 1000,
+                           style_weight=0.01):
     model = create_model()
     #we are nto training the layers of vgg19, so set trainable= false
     for layer in model.layers:
@@ -265,15 +265,13 @@ def perform_style_transfer(content_img,style_img,num_iterations = 1000,content_w
     imgs = []
     
     for i in range(num_iterations):
-        print(i)
         grads,all_loss = compute_grads(cfg)
         loss,style_loss,content_loss = all_loss
         optimizer.apply_gradients([(grads, init_img)])
-        print(loss.numpy())
         #clip the image values
         clipped = []
-        for i in range(3):
-            clipped.append(tf.clip_by_value(init_img[:,:,:,i], min_vals[i], max_vals[i]))
+        for ii in range(3):
+            clipped.append(tf.clip_by_value(init_img[:,:,:,ii], min_vals[ii], max_vals[ii]))
         
         init_img.assign(tf.stack(clipped,axis=-1))
         
@@ -308,7 +306,7 @@ def perform_style_transfer(content_img,style_img,num_iterations = 1000,content_w
         
     return best_img, best_loss
     
-best_img,best_loss = perform_style_transfer(content_img,style_img,num_iterations=2)
+best_img,best_loss = perform_style_transfer(content_img,style_img,num_iterations=100)
 Image.fromarray(best_img)
 
 def show_results(best_img,content_img,style_img):

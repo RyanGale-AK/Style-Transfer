@@ -50,6 +50,17 @@ print("Eager execution: {}".format(tf.executing_eagerly()))
 style_img = 'style.jpg'
 content_img = 'content.jpg'
 
+################################################################################
+################################################################################
+def save_img(img, file_to_save):
+    """ save passed image to requested file """
+    nparray_rep = img
+    if not isinstance(img, np.ndarray):
+        nparray_rep = k_image.img_to_array(img)
+    k_image.save_img(file_to_save, nparray_rep)
+
+################################################################################
+################################################################################
 def load_img(img_path):
     max_size = 512
     img = Image.open(img_path)
@@ -308,6 +319,7 @@ def perform_style_transfer(content_img,style_img,num_iterations = 1000,content_w
             plot_img = init_img.numpy()
             plot_img = deprocess_img(plot_img)
             imgs.append(plot_img)
+            save_img(plot_img, "styled" + str(i) + ".jpg")
             IPython.display.clear_output(wait = True)
             IPython.display.display_png(Image.fromarray(plot_img))
             print('Iteration: {}'.format(i))
